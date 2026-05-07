@@ -1,0 +1,119 @@
+﻿@model List<BookshopTuitionSystem.Models.Item>
+
+<style>
+    .container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .left-panel {
+        width: 40%;
+    }
+
+    .right-panel {
+        width: 58%;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: center;
+    }
+</style>
+
+<h2>Stock Monitoring Dashboard</h2>
+
+<hr />
+
+<div class="container">
+
+    <!-- LEFT SIDE -->
+    <div class="left-panel">
+
+        <form method="get" action="/Orders/StockMonitor">
+            <input type="text" name="search" placeholder="Search type / brand / supplier" />
+            <button type="submit">Search</button>
+        </form>
+
+        <hr />
+
+        <h3>Total Inventory Value</h3>
+        <p><strong>@ViewBag.TotalInventoryValue</strong></p>
+
+        <hr />
+
+        <h3>Low Stock Alerts (Below 10)</h3>
+
+        @if (ViewBag.LowStock.Count == 0)
+        {
+            <p>No low stock items.</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var item in ViewBag.LowStock)
+                {
+                    <li>@item.Type - @item.Brand (Qty: @item.Quantity)</li>
+                }
+            </ul>
+        }
+
+        <hr />
+
+        <h3>Out of Stock</h3>
+
+        @if (ViewBag.OutOfStock.Count == 0)
+        {
+            <p>No out of stock items.</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var item in ViewBag.OutOfStock)
+                {
+                    <li>@item.Type - @item.Brand</li>
+                }
+            </ul>
+        }
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-panel">
+
+        <h3>All Inventory</h3>
+
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Brand</th>
+                <th>Supplier</th>
+                <th>Quantity</th>
+                <th>Cost</th>
+                <th>Selling Price</th>
+            </tr>
+
+            @foreach (var i in Model)
+            {
+                <tr>
+                    <td>@i.Type</td>
+                    <td>@i.Brand</td>
+                    <td>@i.Supplier</td>
+                    <td>@i.Quantity</td>
+                    <td>@i.CostPrice</td>
+                    <td>@i.SellingPrice</td>
+                </tr>
+            }
+        </table>
+
+    </div>
+
+</div>

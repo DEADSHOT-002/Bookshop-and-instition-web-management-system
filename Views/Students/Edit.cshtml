@@ -1,0 +1,56 @@
+﻿@model BookshopTuitionSystem.Models.Student
+
+<h2>Edit Student</h2>
+
+<form asp-action="Edit" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
+    <label>Full Name</label><br />
+    <input asp-for="FullName" />
+    <br /><br />
+
+    <label>Phone</label><br />
+    <input asp-for="Phone" />
+    <br /><br />
+
+    <label>Course</label><br />
+    <input asp-for="Course" />
+    <br /><br />
+
+    <label>Status</label><br />
+    <select asp-for="Status">
+        <option>Active</option>
+        <option>Inactive</option>
+    </select>
+    <br /><br />
+
+    <hr />
+
+    <h3>Institute Details</h3>
+
+    <label>Grade</label><br />
+    <input asp-for="Grade" />
+    <br /><br />
+
+    <label>Subject</label><br />
+    <input asp-for="Subject" />
+    <br /><br />
+
+    <label>Guardian Name</label><br />
+    <input asp-for="GuardianName" />
+    <br /><br />
+
+    <label>School</label><br />
+    <input asp-for="School" />
+    <br /><br />
+
+    <label>Guardian Contact</label><br />
+    <input asp-for="GuardianContact" />
+    <br /><br />
+
+    <button type="submit">Update Student</button>
+
+</form>
+
+<a href="/Students">Back</a>

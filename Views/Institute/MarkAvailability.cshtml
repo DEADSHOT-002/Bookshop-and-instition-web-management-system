@@ -1,0 +1,86 @@
+﻿@model List<DateTime>
+
+<h2>Mark Free Dates</h2>
+
+<style>
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    max-width: 600px;
+}
+
+.day {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.day.available {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+.day:hover {
+    background-color: #ddd;
+}
+</style>
+
+<h3 id="monthTitle"></h3>
+
+<div class="calendar" id="calendar"></div>
+
+<form id="availabilityForm" method="post">
+    <input type="hidden" name="selectedDate" id="selectedDate" />
+</form>
+
+<script>
+const availableDates = @Html.Raw(
+    System.Text.Json.JsonSerializer.Serialize(
+        Model.Select(d => d.ToString("yyyy-MM-dd"))
+    )
+);
+
+let currentDate = new Date();
+
+function renderCalendar() {
+
+    const calendar = document.getElementById("calendar");
+    const title = document.getElementById("monthTitle");
+
+    calendar.innerHTML = "";
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    title.innerText = currentDate.toLocaleString('default', { month: 'long' }) + " " + year;
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+
+        const dateObj = new Date(year, month, day);
+        const dateString = dateObj.toISOString().split('T')[0];
+
+        const div = document.createElement("div");
+        div.className = "day";
+        div.innerText = day;
+
+        if (availableDates.includes(dateString)) {
+            div.classList.add("available");
+        }
+
+        div.onclick = () => {
+            document.getElementById("selectedDate").value = dateString;
+            document.getElementById("availabilityForm").submit();
+        };
+
+        calendar.appendChild(div);
+    }
+}
+
+renderCalendar();
+</script>

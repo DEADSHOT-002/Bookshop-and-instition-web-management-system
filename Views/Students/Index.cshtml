@@ -1,0 +1,77 @@
+﻿@model IEnumerable<BookshopTuitionSystem.Models.Student>
+
+<h2>Students</h2>
+
+<a href="/Students/Create">Add Student</a>
+
+<br /><br />
+
+<form method="get">
+
+    <label>Student ID</label><br />
+    <input type="number" name="id" />
+
+    <br /><br />
+
+    <label>Name</label><br />
+    <input type="text" name="name" placeholder="Enter student name" />
+
+    <br /><br />
+
+    <label>Grade</label><br />
+    <input type="text" name="grade" placeholder="Enter grade" />
+
+    <br /><br />
+
+    <button type="submit">Search</button>
+
+</form>
+
+<br />
+
+@if (Model == null || !Model.Any())
+{
+    <p>No students found.</p>
+}
+else
+{
+    <table border="1" cellpadding="10" width="100%">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Course</th>
+            <th>Grade</th>
+            <th>Subject</th>
+            <th>Guardian</th>
+            <th>School</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.Id</td>
+                <td>@s.FullName</td>
+                <td>@s.Phone</td>
+                <td>@s.Course</td>
+                <td>@s.Grade</td>
+                <td>@s.Subject</td>
+                <td>@s.GuardianName</td>
+                <td>@s.School</td>
+                <td>@s.Status</td>
+                <td>
+                    @if (Context.Session.GetString("Role") == "Owner/Admin")
+                    {
+                        <a href="/Students/Edit/@s.Id">Edit</a> @:|
+                        <a href="/Students/Delete/@s.Id"
+                           onclick="return confirm('Delete this student?');">
+                           Delete
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+}

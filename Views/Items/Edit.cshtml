@@ -1,0 +1,20 @@
+﻿@model BookshopTuitionSystem.Models.Item
+
+<h2>Edit Item</h2>
+
+<form method="post">
+
+<input type="hidden" asp-for="Id" />
+
+Type: <input asp-for="Type" /><br /><br />
+Brand: <input asp-for="Brand" /><br /><br />
+Quantity: <input asp-for="Quantity" /><br /><br />
+Receipt No: <input asp-for="PurchaseReceiptNo" /><br /><br />
+Date Purchased: <input asp-for="DatePurchased" type="date" /><br /><br />
+Supplier: <input asp-for="Supplier" /><br /><br />
+Cost Price: <input asp-for="CostPrice" /><br /><br />
+Selling Price: <input asp-for="SellingPrice" /><br /><br />
+
+<button type="submit">Update</button>
+
+</form>

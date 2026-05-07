@@ -1,0 +1,307 @@
+﻿@model List<BookshopTuitionSystem.Models.Item>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #eaf0f7;
+            --fg: #1a2a3a;
+            --fg-muted: #5e7a92;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.15);
+            --radius: 30px;
+            --radius-sm: 18px;
+            --danger: #dc2626;
+            --danger-bg: rgba(220, 38, 38, 0.06);
+            --danger-border: rgba(220, 38, 38, 0.14);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 4rem 1.5rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 30%, rgba(37,99,235,0.12), transparent),
+                radial-gradient(ellipse 50% 60% at 80% 70%, rgba(56,189,248,0.1), transparent),
+                radial-gradient(ellipse 40% 40% at 60% 20%, rgba(99,102,241,0.08), transparent),
+                radial-gradient(ellipse 55% 45% at 30% 80%, rgba(14,165,233,0.09), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dash-content { position: relative; z-index: 1; width: 100%; max-width: 1100px; }
+
+        .page-header {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+            animation: textIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+        .page-header-left { display: flex; align-items: center; gap: 1.2rem; }
+        .page-header-icon { font-size: 2.4rem; line-height: 1; filter: drop-shadow(0 2px 10px rgba(37, 99, 235, 0.15)); }
+        .page-header h2 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--fg); }
+        .page-header-sub { font-size: 0.85rem; color: var(--fg-muted); font-weight: 400; margin-top: 0.1rem; }
+
+        @@keyframes textIn { from { opacity: 0; transform: translateY(21px); } }
+        @@keyframes cardIn { from { opacity: 0; transform: translateY(24px) scale(0.96); } }
+
+        .btn-add {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.92rem; font-weight: 700;
+            color: #fff; text-decoration: none; padding: 0.75rem 1.8rem;
+            background: linear-gradient(135deg, rgba(37,99,235,0.75), rgba(56,189,248,0.6));
+            border: 1.5px solid rgba(255,255,255,0.25); border-radius: 14px; cursor: pointer;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px -4px rgba(37,99,235,0.3), inset 0 1px 0 0 rgba(255,255,255,0.3);
+            transition: transform 0.25s ease, box-shadow 0.3s ease, background 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .btn-add::before {
+            content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.5s ease; pointer-events: none;
+        }
+        .btn-add:hover::before { left: 125%; }
+        .btn-add:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(37,99,235,0.88), rgba(56,189,248,0.72));
+            box-shadow: 0 8px 30px -4px rgba(37,99,235,0.35), inset 0 1px 0 0 rgba(255,255,255,0.35);
+        }
+        .btn-add:active { transform: translateY(0) scale(0.985); }
+        .btn-add:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+        .search-card {
+            padding: 1.2rem 1.5rem; border-radius: var(--radius);
+            background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.07) 100%);
+            backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border: 1.5px solid rgba(255,255,255,0.35); border-top-color: rgba(255,255,255,0.65); border-left-color: rgba(255,255,255,0.5);
+            box-shadow: 0 9px 45px -12px rgba(0,0,0,0.04), inset 0 1.5px 0 0 rgba(255,255,255,0.65), inset 1.5px 1.5px 0 0 rgba(255,255,255,0.3), inset 0 -1.5px 0 0 rgba(0,0,0,0.02), inset 0 0 36px -12px rgba(255,255,255,0.1);
+            margin-bottom: 2rem; animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+        .search-form { display: flex; gap: 0.8rem; align-items: center; }
+        .search-input {
+            flex: 1; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; color: var(--fg);
+            background: rgba(255,255,255,0.35); border: 1.5px solid rgba(148,180,210,0.3); border-radius: 12px;
+            padding: 0.7rem 1rem; outline: none;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), inset 0 -1px 0 0 rgba(0,0,0,0.02);
+            transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        }
+        .search-input::placeholder { color: rgba(90,120,150,0.45); }
+        .search-input:hover { border-color: rgba(37,99,235,0.25); background: rgba(255,255,255,0.45); }
+        .search-input:focus { border-color: rgba(37,99,235,0.5); background: rgba(255,255,255,0.52); box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), 0 0 0 3px var(--accent-glow); }
+        .btn-search {
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff;
+            background: linear-gradient(135deg, rgba(37,99,235,0.75), rgba(56,189,248,0.6));
+            border: 1.5px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 0.7rem 1.6rem; cursor: pointer;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px -4px rgba(37,99,235,0.3), inset 0 1px 0 0 rgba(255,255,255,0.3);
+            transition: transform 0.2s ease, box-shadow 0.3s ease; white-space: nowrap;
+        }
+        .btn-search:hover { transform: translateY(-2px); background: linear-gradient(135deg, rgba(37,99,235,0.88), rgba(56,189,248,0.72)); box-shadow: 0 8px 30px -4px rgba(37,99,235,0.35); }
+        .btn-search:active { transform: translateY(0) scale(0.985); }
+        .search-hint { font-size: 0.72rem; color: var(--fg-muted); margin-top: 0.5rem; }
+
+        .table-card {
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.07) 100%);
+            backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border: 1.5px solid rgba(255,255,255,0.35); border-top-color: rgba(255,255,255,0.65); border-left-color: rgba(255,255,255,0.5);
+            box-shadow: 0 9px 45px -12px rgba(0,0,0,0.04), inset 0 1.5px 0 0 rgba(255,255,255,0.65), inset 1.5px 1.5px 0 0 rgba(255,255,255,0.3), inset 0 -1.5px 0 0 rgba(0,0,0,0.02), inset 0 0 36px -12px rgba(255,255,255,0.1);
+            overflow: hidden; animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+        }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+            color: var(--fg-muted); padding: 1rem 1.2rem; text-align: left;
+            background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(148,180,210,0.15);
+            position: sticky; top: 0;
+        }
+        tbody tr { transition: background 0.15s ease; }
+        tbody tr:hover { background: rgba(255,255,255,0.08); }
+        tbody td { padding: 0.85rem 1.2rem; font-size: 0.88rem; border-bottom: 1px solid rgba(148,180,210,0.08); vertical-align: middle; }
+        .td-type { font-weight: 600; color: var(--fg); }
+        .td-muted { color: var(--fg-muted); }
+        .td-qty { font-weight: 700; color: var(--fg); }
+        .qty-low { color: var(--danger); }
+        .td-price { font-weight: 600; font-variant-numeric: tabular-nums; }
+        .price-cost { color: var(--fg-muted); }
+        .price-selling { color: var(--accent); }
+
+        .actions-cell { display: flex; gap: 0.5rem; align-items: center; }
+        .btn-action {
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.76rem; font-weight: 600;
+            text-decoration: none; padding: 0.35rem 0.8rem; border-radius: 8px; border: 1px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+        .btn-edit { color: var(--accent); background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.12); }
+        .btn-edit:hover { background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.22); }
+        .btn-delete { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-border); }
+        .btn-delete:hover { background: rgba(220,38,38,0.1); border-color: rgba(220,38,38,0.22); }
+        .btn-view-only {
+            font-size: 0.76rem; font-weight: 500; color: var(--fg-muted);
+            background: rgba(148,180,210,0.08); border: 1px solid rgba(148,180,210,0.15);
+            padding: 0.35rem 0.8rem; border-radius: 8px;
+        }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--fg-muted); }
+        .empty-icon { font-size: 3rem; margin-bottom: 0.8rem; opacity: 0.5; }
+        .empty-text { font-size: 1rem; font-weight: 500; }
+        .empty-sub { font-size: 0.82rem; margin-top: 0.4rem; opacity: 0.7; }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+            color: var(--fg-muted); text-decoration: none; padding: 0.5rem 1rem; border-radius: var(--radius-sm);
+            border: 1.5px solid transparent; background: transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 1.5rem; animation: textIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+        }
+        .back-link:hover { color: var(--fg); background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), 0 3px 18px -6px rgba(37,99,235,0.1); }
+        .back-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+        @@media (max-width: 700px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .search-form { flex-direction: column; }
+            .btn-search { width: 100%; text-align: center; }
+            thead th, tbody td { padding: 0.7rem 0.8rem; font-size: 0.8rem; }
+        }
+        @@media (max-width: 520px) {
+            body { padding: 2rem 1rem; }
+            .page-header h2 { font-size: 1.5rem; }
+            .search-card { padding: 1rem; }
+            .btn-add { width: 100%; justify-content: center; padding: 0.7rem 1.2rem; }
+            .actions-cell { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+        }
+        @@media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dash-content">
+
+        <a href="/Bookshop/Index" class="back-link">&#8592; Back to Dashboard</a>
+
+        <div class="page-header">
+            <div class="page-header-left">
+                <span class="page-header-icon" aria-hidden="true">&#128230;</span>
+                <div>
+                    <h2>Inventory</h2>
+                    <p class="page-header-sub">@Model.Count items in stock</p>
+                </div>
+            </div>
+            @if (Context.Session.GetString("Role") == "Owner/Admin" || Context.Session.GetString("Role") == "Staff")
+            {
+                <a href="/Items/Create" class="btn-add">+ Add Item</a>
+            }
+        </div>
+
+        <div class="search-card">
+            <form method="get" class="search-form">
+                <input type="text" name="search" value="@Context.Request.Query["search"]" placeholder="Search by type, brand or supplier..." class="search-input" />
+                <button type="submit" class="btn-search">Search</button>
+            </form>
+            @if (!string.IsNullOrEmpty(Context.Request.Query["search"]))
+            {
+                <p class="search-hint">Showing results for "<strong>@Context.Request.Query["search"]</strong>"</p>
+            }
+        </div>
+
+        <div class="table-card">
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">&#128269;</div>
+                    <div class="empty-text">No items found</div>
+                    <p class="empty-sub">
+                        @if (!string.IsNullOrEmpty(Context.Request.Query["search"]))
+                        {
+                            <span>Try a different search term</span>
+                        }
+                        else if (Context.Session.GetString("Role") == "Owner/Admin" || Context.Session.GetString("Role") == "Staff")
+                        {
+                            <a href="/Items/Create" style="color:var(--accent);text-decoration:underline;">Add your first item</a>
+                        }
+                        else
+                        {
+                            <span>No items have been added yet</span>
+                        }
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Brand</th>
+                                <th>Qty</th>
+                                <th>Supplier</th>
+                                <th>Cost</th>
+                                <th>Selling</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var i in Model)
+                            {
+                                var lowStock = i.Quantity <= 5;
+                                <tr>
+                                    <td class="td-type">@i.Type</td>
+                                    <td class="td-muted">@i.Brand</td>
+                                    <td class="td-qty @(lowStock ? "qty-low" : "")">@i.Quantity</td>
+                                    <td class="td-muted">@i.Supplier</td>
+                                    <td class="td-price price-cost">@i.CostPrice</td>
+                                    <td class="td-price price-selling">@i.SellingPrice</td>
+                                    <td>
+                                        @if (Context.Session.GetString("Role") == "Owner/Admin")
+                                        {
+                                            <div class="actions-cell">
+                                                <a href="/Items/Edit/@i.Id" class="btn-action btn-edit">Edit</a>
+                                                <a href="/Items/Delete/@i.Id" class="btn-action btn-delete">Delete</a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn-view-only">View Only</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+    </div>
+
+</body>
+</html>

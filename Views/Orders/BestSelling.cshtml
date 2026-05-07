@@ -1,0 +1,49 @@
+﻿@model List<BookshopTuitionSystem.Models.BestSellingViewModel>
+
+<h2>Best Selling Items Analytics</h2>
+
+<hr />
+
+<form method="get" action="/Orders/BestSelling">
+    <label>View:</label>
+    <select name="range">
+        <option value="weekly">Last 7 Days</option>
+        <option value="monthly">This Month</option>
+    </select>
+    <button type="submit">Generate</button>
+</form>
+
+<hr />
+
+@if (Model == null || !Model.Any())
+{
+    <p>No sales data available.</p>
+}
+else
+{
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Rank</th>
+            <th>Type</th>
+            <th>Brand</th>
+            <th>Quantity Sold</th>
+            <th>Total Revenue</th>
+        </tr>
+
+        @{
+            int rank = 1;
+        }
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@rank</td>
+                <td>@item.Type</td>
+                <td>@item.Brand</td>
+                <td>@item.QuantitySold</td>
+                <td>@item.Revenue</td>
+            </tr>
+            rank++;
+        }
+    </table>
+}

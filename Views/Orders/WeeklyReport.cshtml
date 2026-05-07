@@ -1,0 +1,56 @@
+﻿@model List<BookshopTuitionSystem.Models.Order>
+
+<h2>Weekly Sales Report</h2>
+
+<hr />
+
+<form method="get" action="/Orders/WeeklyReport">
+
+    <label>Year:</label>
+    <input type="number" name="year" value="@DateTime.Now.Year" />
+
+    <label>Month:</label>
+    <input type="number" name="month" min="1" max="12" value="@DateTime.Now.Month" />
+
+    <label>Week:</label>
+    <input type="number" name="week" min="1" max="4" value="1" />
+
+    <button type="submit">Generate</button>
+
+</form>
+
+<hr />
+
+<h3>Summary</h3>
+
+<p>Total Revenue: @ViewBag.TotalRevenue</p>
+<p>Total Orders: @ViewBag.TotalOrders</p>
+<p>Items Sold: @ViewBag.TotalItemsSold</p>
+
+<hr />
+
+<h3>Orders</h3>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No sales found for selected week.</p>
+}
+else
+{
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Invoice</th>
+            <th>Date</th>
+            <th>Total</th>
+        </tr>
+
+        @foreach (var o in Model)
+        {
+            <tr>
+                <td>@o.InvoiceNumber</td>
+                <td>@o.OrderDate</td>
+                <td>@o.GrandTotal</td>
+            </tr>
+        }
+    </table>
+}

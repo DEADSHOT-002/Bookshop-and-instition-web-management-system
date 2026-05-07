@@ -1,0 +1,78 @@
+﻿@model List<BookshopTuitionSystem.Models.Order>
+
+<h2>Sales History</h2>
+
+<form method="get" action="/Orders/History">
+    <label>Select Date:</label>
+    <input type="date" name="selectedDate"
+           value="@(((DateTime)ViewBag.SelectedDate).ToString("yyyy-MM-dd"))" />
+    <button type="submit">View</button>
+</form>
+
+<hr />
+
+<p><strong>Total Orders:</strong> @ViewBag.TotalOrders</p>
+<p><strong>Total Revenue:</strong> @ViewBag.TotalRevenue</p>
+
+<hr />
+
+@if (!Model.Any())
+{
+    <p>No sales found for this date.</p>
+}
+else
+{
+    <table border="1" cellpadding="10" width="100%">
+        <tr>
+            <th>Invoice</th>
+            <th>Time</th>
+            <th>Total</th>
+            <th>Details</th>
+        </tr>
+
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.InvoiceNumber</td>
+                <td>@order.OrderDate.ToString("hh:mm tt")</td>
+                <td>@order.GrandTotal</td>
+                <td>
+                    <button onclick="toggleDetails('@order.InvoiceNumber')">
+                        View
+                    </button>
+                </td>
+            </tr>
+
+            <tr id="details-@order.InvoiceNumber" style="display:none;">
+                <td colspan="4">
+                    <table border="1" width="100%">
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                        </tr>
+
+                        @foreach (var item in order.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.ItemId</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price</td>
+                            </tr>
+                        }
+                    </table>
+                </td>
+            </tr>
+        }
+    </table>
+}
+
+<script>
+function toggleDetails(invoice) {
+    var row = document.getElementById("details-" + invoice);
+    if (row.style.display === "none")
+        row.style.display = "table-row";
+    else
+        row.style.display = "none";
+}
+</script>

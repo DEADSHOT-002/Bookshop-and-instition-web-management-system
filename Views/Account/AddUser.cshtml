@@ -1,0 +1,79 @@
+﻿@model BookshopTuitionSystem.Models.User
+
+<h2>Add User</h2>
+
+<form asp-action="AddUser" method="post" enctype="multipart/form-data">
+
+    <label>Username</label><br />
+    <input type="text" name="username" required />
+    <br /><br />
+
+    <label>Password</label><br />
+    <input type="password" name="password" required />
+    <br /><br />
+
+    <label>Role</label><br />
+    <select name="role" id="roleSelect" onchange="toggleFields()">
+        <option value="">--Select Role--</option>
+        <option value="Staff">Staff</option>
+        <option value="Teacher">Teacher</option>
+    </select>
+
+    <hr />
+
+    <div id="staffFields" style="display:none;">
+        <h3>Staff Details</h3>
+
+        <label>Full Name</label><br />
+        <input type="text" name="StaffFullName" /><br /><br />
+
+        <label>Age</label><br />
+        <input type="number" name="Age" /><br /><br />
+
+        <label>Address</label><br />
+        <input type="text" name="StaffAddress" /><br /><br />
+
+        <label>NIC</label><br />
+        <input type="text" name="NIC" /><br /><br />
+
+        <label>Contact No</label><br />
+        <input type="text" name="StaffContact" /><br /><br />
+    </div>
+
+ 
+    <div id="teacherFields" style="display:none;">
+        <h3>Teacher Details</h3>
+
+        <label>Full Name</label><br />
+        <input type="text" name="TeacherFullName" /><br /><br />
+
+        <label>Address</label><br />
+        <input type="text" name="TeacherAddress" /><br /><br />
+
+        <label>Subject</label><br />
+        <input type="text" name="Subject" /><br /><br />
+
+        <label>Qualifications</label><br />
+        <input type="text" name="Qualifications" /><br /><br />
+
+        <label>Email</label><br />
+        <input type="email" name="Email" /><br /><br />
+
+        <label>Contact No</label><br />
+        <input type="text" name="TeacherContact" /><br /><br />
+    </div>
+
+    <button type="submit">Create User</button>
+</form>
+
+<script>
+function toggleFields() {
+    var role = document.getElementById("roleSelect").value;
+
+    document.getElementById("staffFields").style.display =
+        role === "Staff" ? "block" : "none";
+
+    document.getElementById("teacherFields").style.display =
+        role === "Teacher" ? "block" : "none";
+}
+</script>

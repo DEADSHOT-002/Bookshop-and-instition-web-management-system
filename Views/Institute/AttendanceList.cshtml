@@ -1,0 +1,32 @@
+﻿@model List<BookshopTuitionSystem.Models.Student>
+
+<h2>Mark Attendance</h2>
+
+<form method="post" asp-action="SaveAttendance">
+
+    <input type="hidden" name="date" value="@ViewBag.Date" />
+    <input type="hidden" name="grade" value="@ViewBag.Grade" />
+    <input type="hidden" name="subject" value="@ViewBag.Subject" />
+
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Present</th>
+        </tr>
+
+        @foreach (var student in Model)
+        {
+            <tr>
+                <td>@student.FullName</td>
+                <td>
+                    
+                    <input type="checkbox" name="presentStudentIds" value="@student.Id" />
+                </td>
+            </tr>
+        }
+    </table>
+
+    <br />
+
+    <button type="submit">Save Attendance</button>
+</form>

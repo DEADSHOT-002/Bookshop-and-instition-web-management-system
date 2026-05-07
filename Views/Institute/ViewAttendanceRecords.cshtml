@@ -1,0 +1,566 @@
+﻿@model IEnumerable<BookshopTuitionSystem.Models.Attendance>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Records</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #eaf0f7;
+            --fg: #1a2a3a;
+            --fg-muted: #5e7a92;
+            --accent: #2563eb;
+            --accent-hover: #3b82f6;
+            --accent-glow: rgba(37, 99, 235, 0.15);
+            --radius: 30px;
+            --radius-sm: 18px;
+            --present: #16a34a;
+            --present-bg: rgba(22, 163, 74, 0.08);
+            --present-border: rgba(22, 163, 74, 0.18);
+            --absent: #dc2626;
+            --absent-bg: rgba(220, 38, 38, 0.06);
+            --absent-border: rgba(220, 38, 38, 0.14);
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 4rem 1.5rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 30%, rgba(37,99,235,0.12), transparent),
+                radial-gradient(ellipse 50% 60% at 80% 70%, rgba(56,189,248,0.1), transparent),
+                radial-gradient(ellipse 40% 40% at 60% 20%, rgba(99,102,241,0.08), transparent),
+                radial-gradient(ellipse 55% 45% at 30% 80%, rgba(14,165,233,0.09), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dash-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+            animation: textIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+
+        .page-header-icon {
+            font-size: 2.4rem;
+            line-height: 1;
+            filter: drop-shadow(0 2px 10px rgba(37, 99, 235, 0.15));
+        }
+
+        .page-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--fg);
+        }
+
+        .page-header-sub {
+            font-size: 0.85rem;
+            color: var(--fg-muted);
+            font-weight: 400;
+            margin-top: 0.1rem;
+        }
+
+        @@keyframes textIn {
+            from { opacity: 0; transform: translateY(21px); }
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--fg-muted);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid transparent;
+            background: transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 1.5rem;
+            animation: textIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+        }
+
+        .back-link:hover {
+            color: var(--fg);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5), 0 3px 18px -6px rgba(37, 99, 235, 0.1);
+        }
+
+        .back-link:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        
+        .filter-card {
+            padding: 1.5rem 1.8rem;
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.07) 100%);
+            backdrop-filter: blur(24px) saturate(1.5);
+            -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            border-top-color: rgba(255, 255, 255, 0.65);
+            border-left-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 9px 45px -12px rgba(0, 0, 0, 0.04), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.65), inset 1.5px 1.5px 0 0 rgba(255, 255, 255, 0.3), inset 0 -1.5px 0 0 rgba(0, 0, 0, 0.02), inset 0 0 36px -12px rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.8rem;
+            animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+
+        @@keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.96); }
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--fg-muted);
+        }
+
+        .filter-group select,
+        .filter-group input[type="date"] {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--fg);
+            background: rgba(255, 255, 255, 0.35);
+            border: 1.5px solid rgba(148, 180, 210, 0.3);
+            border-radius: 12px;
+            padding: 0.6rem 0.8rem;
+            outline: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 0 rgba(0, 0, 0, 0.02);
+            transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .filter-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235e7a92' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            padding-right: 2.2rem;
+        }
+
+        .filter-group select:focus,
+        .filter-group input[type="date"]:focus {
+            border-color: rgba(37, 99, 235, 0.5);
+            background: rgba(255, 255, 255, 0.52);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5), 0 0 0 3px var(--accent-glow);
+        }
+
+        .btn-filter {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.75), rgba(56, 189, 248, 0.6));
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            padding: 0.6rem 1.8rem;
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px -4px rgba(37, 99, 235, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.88), rgba(56, 189, 248, 0.72));
+            box-shadow: 0 8px 30px -4px rgba(37, 99, 235, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .btn-filter:active { transform: translateY(0) scale(0.985); }
+
+        .btn-clear {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--fg-muted);
+            background: transparent;
+            border: 1.5px solid rgba(148, 180, 210, 0.25);
+            border-radius: 12px;
+            padding: 0.6rem 1.4rem;
+            cursor: pointer;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-clear:hover {
+            color: var(--fg);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+
+        .stats-mini {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .stat-mini {
+            flex: 1;
+            padding: 1.2rem 1.4rem;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.07) 100%);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: rgba(255, 255, 255, 0.55);
+            border-left-color: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 4px 24px -8px rgba(0, 0, 0, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 0 rgba(0, 0, 0, 0.02), inset 0 0 24px -8px rgba(255, 255, 255, 0.1);
+            animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+        }
+
+        .stat-mini-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--fg-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-mini-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-mini-value.total { color: var(--fg); }
+        .stat-mini-value.present { color: var(--present); }
+        .stat-mini-value.absent { color: var(--absent); }
+
+  
+        .table-card {
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.07) 100%);
+            backdrop-filter: blur(24px) saturate(1.5);
+            -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            border-top-color: rgba(255, 255, 255, 0.65);
+            border-left-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 9px 45px -12px rgba(0, 0, 0, 0.04), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.65), inset 1.5px 1.5px 0 0 rgba(255, 255, 255, 0.3), inset 0 -1.5px 0 0 rgba(0, 0, 0, 0.02), inset 0 0 36px -12px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--fg-muted);
+            padding: 1rem 1.4rem;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(148, 180, 210, 0.15);
+            position: sticky;
+            top: 0;
+        }
+
+        tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        tbody td {
+            padding: 0.9rem 1.4rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(148, 180, 210, 0.08);
+            vertical-align: middle;
+        }
+
+        .td-student {
+            font-weight: 600;
+            color: var(--fg);
+        }
+
+        .td-muted {
+            color: var(--fg-muted);
+            font-size: 0.82rem;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.3rem 0.75rem;
+            border-radius: 8px;
+        }
+
+        .badge-present {
+            color: var(--present);
+            background: var(--present-bg);
+            border: 1px solid var(--present-border);
+        }
+
+        .badge-absent {
+            color: var(--absent);
+            background: var(--absent-bg);
+            border: 1px solid var(--absent-border);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--fg-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 0.8rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+    
+        @@media (max-width: 700px) {
+            .filter-row {
+                flex-direction: column;
+            }
+            .filter-group {
+                min-width: 100%;
+            }
+            .stats-mini {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            thead th, tbody td {
+                padding: 0.7rem 1rem;
+                font-size: 0.82rem;
+            }
+        }
+
+        @@media (max-width: 520px) {
+            body { padding: 2rem 1rem; }
+            .page-header h2 { font-size: 1.5rem; }
+            .filter-card { padding: 1.2rem; }
+            .stat-mini-value { font-size: 1.3rem; }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dash-content">
+
+        <a href="/Institute/Index" class="back-link">&#8592; Back to Dashboard</a>
+
+        <div class="page-header">
+            <span class="page-header-icon" aria-hidden="true">&#128203;</span>
+            <div>
+                <h2>Attendance Records</h2>
+                <p class="page-header-sub">View all marked attendance history</p>
+            </div>
+        </div>
+
+
+        <div class="filter-card">
+            <form method="get" action="/Institute/ViewAttendanceRecords">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="grade">Grade</label>
+                        <select name="grade" id="grade">
+                            <option value="">All Grades</option>
+                            @foreach (var g in ViewBag.Grades)
+                            {
+                                @if (ViewBag.Grade == g)
+                                {
+                                    <option value="@g" selected>@g</option>
+                                }
+                                else
+                                {
+                                    <option value="@g">@g</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="subject">Subject</label>
+                        <select name="subject" id="subject">
+                            <option value="">All Subjects</option>
+                            @foreach (var s in ViewBag.Subjects)
+                            {
+                                @if (ViewBag.Subject == s)
+                                {
+                                    <option value="@s" selected>@s</option>
+                                }
+                                else
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="date">Date</label>
+                        <input type="date" name="date" id="date" value="@(ViewBag.Date?.ToString("yyyy-MM-dd"))" />
+                    </div>
+                    <div class="filter-group" style="flex:0; min-width:auto;">
+                        <label>&nbsp;</label>
+                        <div style="display:flex; gap:0.6rem;">
+                            <button type="submit" class="btn-filter">Filter</button>
+                            <a href="/Institute/ViewAttendanceRecords" class="btn-clear" style="display:inline-flex; align-items:center; text-decoration:none;">Clear</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+        @{
+            var totalRecords = Model.Count();
+            var presentCount = Model.Count(a => a.Status == "Present");
+            var absentCount = Model.Count(a => a.Status == "Absent");
+        }
+
+        <div class="stats-mini">
+            <div class="stat-mini">
+                <div class="stat-mini-label">Total Records</div>
+                <div class="stat-mini-value total">@totalRecords</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-label">Present</div>
+                <div class="stat-mini-value present">@presentCount</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-label">Absent</div>
+                <div class="stat-mini-value absent">@absentCount</div>
+            </div>
+        </div>
+
+ 
+        <div class="table-card">
+            @if (Model.Any())
+            {
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Student</th>
+                                <th>Grade</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model)
+                            {
+                                <tr>
+                                    <td class="td-muted">@r.Date.ToString("dd MMM yyyy")</td>
+                                    <td class="td-student">@(r.Student?.FullName ?? "—")</td>
+                                    <td class="td-muted">@r.Grade</td>
+                                    <td class="td-muted">@r.Subject</td>
+                                    <td>
+                                        @if (r.Status == "Present")
+                                        {
+                                            <span class="badge badge-present">Present</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-absent">Absent</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">&#128196;</div>
+                    <div class="empty-state-text">No attendance records found</div>
+                </div>
+            }
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+﻿@model BookshopTuitionSystem.Models.Item
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Item</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #eaf0f7;
+            --fg: #1a2a3a;
+            --fg-muted: #5e7a92;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.15);
+            --radius: 30px;
+            --radius-sm: 18px;
+            --danger: #dc2626;
+            --danger-bg: rgba(220, 38, 38, 0.06);
+            --danger-border: rgba(220, 38, 38, 0.14);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 4rem 1.5rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 30%, rgba(37,99,235,0.12), transparent),
+                radial-gradient(ellipse 50% 60% at 80% 70%, rgba(56,189,248,0.1), transparent),
+                radial-gradient(ellipse 40% 40% at 60% 20%, rgba(99,102,241,0.08), transparent),
+                radial-gradient(ellipse 55% 45% at 30% 80%, rgba(14,165,233,0.09), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dash-content { position: relative; z-index: 1; width: 100%; max-width: 640px; }
+
+        .page-header {
+            display: flex; align-items: center; gap: 1.2rem; margin-bottom: 2rem;
+            animation: textIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+        .page-header-icon { font-size: 2.4rem; line-height: 1; filter: drop-shadow(0 2px 10px rgba(37,99,235,0.15)); }
+        .page-header h2 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--fg); }
+        .page-header-sub { font-size: 0.85rem; color: var(--fg-muted); font-weight: 400; margin-top: 0.1rem; }
+
+        @@keyframes textIn { from { opacity: 0; transform: translateY(21px); } }
+        @@keyframes cardIn { from { opacity: 0; transform: translateY(24px) scale(0.96); } }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+            color: var(--fg-muted); text-decoration: none; padding: 0.5rem 1rem; border-radius: var(--radius-sm);
+            border: 1.5px solid transparent; background: transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 1.5rem; animation: textIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+        }
+        .back-link:hover { color: var(--fg); background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), 0 3px 18px -6px rgba(37,99,235,0.1); }
+        .back-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+        .form-card {
+            padding: 2.5rem 2.5rem 2rem; border-radius: var(--radius);
+            background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.07) 100%);
+            backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border: 1.5px solid rgba(255,255,255,0.35); border-top-color: rgba(255,255,255,0.65); border-left-color: rgba(255,255,255,0.5);
+            box-shadow: 0 9px 45px -12px rgba(0,0,0,0.04), inset 0 1.5px 0 0 rgba(255,255,255,0.65), inset 1.5px 1.5px 0 0 rgba(255,255,255,0.3), inset 0 -1.5px 0 0 rgba(0,0,0,0.02), inset 0 0 36px -12px rgba(255,255,255,0.1);
+            animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .form-group { margin-bottom: 1.3rem; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-group label {
+            display: block; font-size: 0.76rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--fg-muted); margin-bottom: 0.4rem;
+            transition: color 0.25s ease;
+        }
+        .form-group label .req { color: var(--danger); margin-left: 2px; }
+        .form-group:focus-within label { color: var(--accent); }
+
+        .form-group input {
+            width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; color: var(--fg);
+            background: rgba(255,255,255,0.35); border: 1.5px solid rgba(148,180,210,0.3); border-radius: 12px;
+            padding: 0.75rem 1rem; outline: none;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), inset 0 -1px 0 0 rgba(0,0,0,0.02);
+            transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        }
+        .form-group input::placeholder { color: rgba(90,120,150,0.4); }
+        .form-group input:hover { border-color: rgba(37,99,235,0.25); background: rgba(255,255,255,0.45); }
+        .form-group input:focus {
+            border-color: rgba(37,99,235,0.5); background: rgba(255,255,255,0.52);
+            box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), 0 0 0 3px var(--accent-glow);
+        }
+        .form-group input.input-error {
+            border-color: rgba(220,38,38,0.5);
+            box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), 0 0 0 3px rgba(220,38,38,0.08);
+        }
+
+        .field-error {
+            font-size: 0.72rem; font-weight: 500; color: var(--danger); margin-top: 0.3rem;
+            animation: shakeIn 0.4s ease both;
+        }
+        @@keyframes shakeIn {
+            0% { opacity: 0; transform: translateX(-6px); }
+            25% { transform: translateX(5px); }
+            50% { transform: translateX(-3px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .form-actions { display: flex; gap: 0.8rem; margin-top: 1.8rem; }
+
+        .btn-submit {
+            flex: 1; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; font-weight: 700;
+            color: #fff; background: linear-gradient(135deg, rgba(37,99,235,0.75), rgba(56,189,248,0.6));
+            border: 1.5px solid rgba(255,255,255,0.25); border-radius: 14px; padding: 0.85rem 1.5rem; cursor: pointer;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px -4px rgba(37,99,235,0.3), inset 0 1px 0 0 rgba(255,255,255,0.3);
+            transition: transform 0.25s ease, box-shadow 0.3s ease, background 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .btn-submit::before {
+            content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.5s ease; pointer-events: none;
+        }
+        .btn-submit:hover::before { left: 125%; }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(37,99,235,0.88), rgba(56,189,248,0.72));
+            box-shadow: 0 8px 30px -4px rgba(37,99,235,0.35), inset 0 1px 0 0 rgba(255,255,255,0.35);
+        }
+        .btn-submit:active { transform: translateY(0) scale(0.985); }
+        .btn-submit:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+        .btn-cancel {
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+            color: var(--fg-muted); background: transparent;
+            border: 1.5px solid rgba(148,180,210,0.25); border-radius: 14px; padding: 0.85rem 1.5rem;
+            cursor: pointer; text-decoration: none;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+        .btn-cancel:hover { color: var(--fg); background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); }
+
+        .validation-summary {
+            background: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: var(--radius-sm);
+            padding: 0.8rem 1rem; margin-bottom: 1.5rem;
+            font-size: 0.82rem; font-weight: 500; color: var(--danger);
+            animation: shakeIn 0.4s ease both;
+        }
+        .validation-summary ul { margin: 0; padding-left: 1.2rem; }
+
+        @@media (max-width: 520px) {
+            body { padding: 2rem 1rem; }
+            .page-header h2 { font-size: 1.5rem; }
+            .form-card { padding: 1.8rem 1.5rem 1.5rem; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .form-actions { flex-direction: column-reverse; }
+            .btn-cancel { text-align: center; }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dash-content">
+
+        <a href="/Items" class="back-link">&#8592; Back to Inventory</a>
+
+        <div class="page-header">
+            <span class="page-header-icon" aria-hidden="true">&#10010;</span>
+            <div>
+                <h2>Add Item</h2>
+                <p class="page-header-sub">Fill in all details to add a new item</p>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <form method="post" id="itemForm" novalidate>
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type <span class="req">*</span></label>
+                        <input type="text" name="Type" id="Type" placeholder="e.g. Notebook, Pen" required />
+                        <span class="field-error" id="err-Type" style="display:none"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Brand <span class="req">*</span></label>
+                        <input type="text" name="Brand" id="Brand" placeholder="e.g. Ceylon, Oxford" required />
+                        <span class="field-error" id="err-Brand" style="display:none"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quantity <span class="req">*</span></label>
+                        <input type="number" name="Quantity" id="Quantity" placeholder="0" min="0" required />
+                        <span class="field-error" id="err-Quantity" style="display:none"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier <span class="req">*</span></label>
+                        <input type="text" name="Supplier" id="Supplier" placeholder="Supplier name" required />
+                        <span class="field-error" id="err-Supplier" style="display:none"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cost Price <span class="req">*</span></label>
+                        <input type="number" name="CostPrice" id="CostPrice" placeholder="0.00" min="0" step="0.01" required />
+                        <span class="field-error" id="err-CostPrice" style="display:none"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Selling Price <span class="req">*</span></label>
+                        <input type="number" name="SellingPrice" id="SellingPrice" placeholder="0.00" min="0" step="0.01" required />
+                        <span class="field-error" id="err-SellingPrice" style="display:none"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Receipt No <span class="req">*</span></label>
+                        <input type="text" name="PurchaseReceiptNo" id="PurchaseReceiptNo" placeholder="e.g. INV-001" required />
+                        <span class="field-error" id="err-PurchaseReceiptNo" style="display:none"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Purchased <span class="req">*</span></label>
+                        <input type="date" name="DatePurchased" id="DatePurchased" required />
+                        <span class="field-error" id="err-DatePurchased" style="display:none"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">Save Item</button>
+                    <a href="/Items" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        (function () {
+            var textFields = ['Type', 'Brand', 'Supplier', 'PurchaseReceiptNo'];
+            var numFields = ['Quantity', 'CostPrice', 'SellingPrice'];
+            var dateFields = ['DatePurchased'];
+
+            function clearError(name) {
+                var input = document.getElementById(name);
+                var err = document.getElementById('err-' + name);
+                if (input) input.classList.remove('input-error');
+                if (err) { err.style.display = 'none'; err.textContent = ''; }
+            }
+
+            function showError(name, msg) {
+                var input = document.getElementById(name);
+                var err = document.getElementById('err-' + name);
+                if (input) input.classList.add('input-error');
+                if (err) { err.textContent = msg; err.style.display = 'block'; }
+            }
+
+            textFields.concat(numFields).concat(dateFields).forEach(function (name) {
+                var input = document.getElementById(name);
+                if (input) {
+                    input.addEventListener('input', function () { clearError(name); });
+                    input.addEventListener('change', function () { clearError(name); });
+                }
+            });
+
+            document.getElementById('itemForm').addEventListener('submit', function (e) {
+                var valid = true;
+                var firstInvalid = null;
+
+                textFields.forEach(function (name) {
+                    var input = document.getElementById(name);
+                    if (!input) return;
+                    if (!input.value.trim()) {
+                        showError(name, 'This field is required');
+                        valid = false;
+                        if (!firstInvalid) firstInvalid = input;
+                    }
+                });
+
+                numFields.forEach(function (name) {
+                    var input = document.getElementById(name);
+                    if (!input) return;
+                    var val = input.value.trim();
+                    if (!val) {
+                        showError(name, 'This field is required');
+                        valid = false;
+                        if (!firstInvalid) firstInvalid = input;
+                        return;
+                    }
+                    if (isNaN(parseFloat(val)) || parseFloat(val) < 0) {
+                        showError(name, 'Enter a valid positive number');
+                        valid = false;
+                        if (!firstInvalid) firstInvalid = input;
+                    }
+                });
+
+                dateFields.forEach(function (name) {
+                    var input = document.getElementById(name);
+                    if (!input) return;
+                    if (!input.value) {
+                        showError(name, 'Select a date');
+                        valid = false;
+                        if (!firstInvalid) firstInvalid = input;
+                    }
+                });
+
+                if (!valid) {
+                    e.preventDefault();
+                    if (firstInvalid) firstInvalid.focus();
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
